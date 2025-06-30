@@ -25,8 +25,7 @@ class MenuMedicoActivity : AppCompatActivity() {
         }
 
         btnServicios.setOnClickListener {
-            // Aquí después crearemos ConsultarServiciosActivity
-            // Por ahora no hace nada
+            startActivity(Intent(this, ServiciosPorFechaActivity::class.java))
         }
 
         btnVolver.setOnClickListener {
