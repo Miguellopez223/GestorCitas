@@ -3,6 +3,7 @@ package com.example.gestorcitas.controller
 import com.example.gestorcitas.model.Cita
 import com.example.gestorcitas.model.Medico
 import com.example.gestorcitas.model.Respuesta
+import com.example.gestorcitas.model.RespuestaBuscarPaciente
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -24,13 +25,27 @@ interface ApiService {
     fun insertarCita(
         @Field("paciente_id") pacienteId: Int,
         @Field("medico_id") medicoId: Int,
-        @Field("fecha") fecha: String
+        @Field("fecha") fecha: String,
+        @Field("hora") hora: String,
+        @Field("motivo") motivo: String
     ): Call<Respuesta>
+
 
     @FormUrlEncoded
     @POST("listar_citas_paciente.php")
     fun listarCitasPaciente(
         @Field("paciente_id") pacienteId: Int
     ): Call<List<Cita>>
+
+    @FormUrlEncoded
+    @POST("eliminar_cita.php")
+    fun eliminarCita(
+        @Field("id") idCita: Int
+    ): Call<Respuesta>
+
+    @FormUrlEncoded
+    @POST("buscar_paciente.php")
+    fun buscarPaciente(@Field("ci") ci: String): Call<RespuestaBuscarPaciente>
+
 
 }

@@ -1,8 +1,7 @@
 package com.example.gestorcitas.view
 
-import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.gestorcitas.R
@@ -10,55 +9,131 @@ import com.example.gestorcitas.controller.ApiClient
 import com.example.gestorcitas.controller.ApiService
 import com.example.gestorcitas.model.Medico
 import com.example.gestorcitas.model.Respuesta
+import com.example.gestorcitas.model.RespuestaBuscarPaciente
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 
 class AgendarCitaActivity : AppCompatActivity() {
 
-    private lateinit var spinner: Spinner
-    private lateinit var fechaTexto: TextView
-    private lateinit var medicos: List<Medico>
-    private var medicoSeleccionadoId: Int? = null
-    private var fechaSeleccionada: String = ""
+    private lateinit var spinnerMedicos: Spinner
+    private lateinit var etFecha: EditText
+    private lateinit var etHora: EditText
+    private lateinit var etMotivo: EditText
+    private lateinit var btnAgendar: Button
+    private lateinit var etCi: EditText
+    private lateinit var btnBuscar: Button
+    private lateinit var btnVolver: Button
 
-    private val pacienteId = 1 // Simulado. En tu app real lo obtendrás tras login o registro.
+    private var pacienteId: Int? = null
+    private var listaMedicos = listOf<Medico>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_agendar_cita)
 
-        spinner = findViewById(R.id.spinnerMedicos)
-        val btnFecha = findViewById<Button>(R.id.btnFecha)
-        fechaTexto = findViewById(R.id.tvFechaSeleccionada)
-        val btnAgendar = findViewById<Button>(R.id.btnAgendar)
+        spinnerMedicos = findViewById(R.id.spinnerMedicos)
+        etFecha = findViewById(R.id.etFecha)
+        etHora = findViewById(R.id.etHora)
+        etMotivo = findViewById(R.id.etMotivo)
+        btnAgendar = findViewById(R.id.btnAgendar)
+        etCi = findViewById(R.id.etCi)
+        btnBuscar = findViewById(R.id.btnBuscar)
+        btnVolver = findViewById(R.id.btnVolver)
 
-        val api = ApiClient.retrofit.create(ApiService::class.java)
-        val btnVolver = findViewById<Button>(R.id.btnVolver)
-        btnVolver.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            startActivity(intent)
-            finish()
+        desactivarFormulario()
+
+        btnBuscar.setOnClickListener {
+            val ci = etCi.text.toString().trim()
+            if (ci.isBlank()) {
+                Toast.makeText(this, "Ingresá tu CI", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val api = ApiClient.retrofit.create(ApiService::class.java)
+            api.buscarPaciente(ci).enqueue(object : Callback<RespuestaBuscarPaciente> {
+                override fun onResponse(call: Call<RespuestaBuscarPaciente>, response: Response<RespuestaBuscarPaciente>) {
+                    val r = response.body()
+                    if (r?.success == true) {
+                        pacienteId = r.id
+                        Toast.makeText(this@AgendarCitaActivity, "Paciente: ${r.nombre}", Toast.LENGTH_SHORT).show()
+                        habilitarFormulario()
+                        cargarMedicos()
+                    } else {
+                        Toast.makeText(this@AgendarCitaActivity, r?.mensaje ?: "No encontrado", Toast.LENGTH_SHORT).show()
+                        desactivarFormulario()
+                    }
+                }
+
+                override fun onFailure(call: Call<RespuestaBuscarPaciente>, t: Throwable) {
+                    Toast.makeText(this@AgendarCitaActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
+        btnAgendar.setOnClickListener {
+            val fecha = etFecha.text.toString().trim()
+            val hora = etHora.text.toString().trim()
+            val motivo = etMotivo.text.toString().trim()
+            val medicoSeleccionado = spinnerMedicos.selectedItemPosition
 
-        // Cargar médicos
-        api.listarMedicos().enqueue(object : Callback<List<Medico>> {
-            override fun onResponse(call: Call<List<Medico>>, response: Response<List<Medico>>) {
-                medicos = response.body() ?: emptyList()
-                val nombres = medicos.map { it.nombre }
-                val adapter = ArrayAdapter(this@AgendarCitaActivity, android.R.layout.simple_spinner_item, nombres)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinner.adapter = adapter
+            if (fecha.isBlank() || hora.isBlank() || motivo.isBlank() || pacienteId == null || medicoSeleccionado < 0) {
+                Toast.makeText(this, "Completá todos los campos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
-                        medicoSeleccionadoId = medicos[position].id
+            val medicoId = listaMedicos[medicoSeleccionado].id
+            val api = ApiClient.retrofit.create(ApiService::class.java)
+            api.insertarCita(pacienteId!!, medicoId, fecha, hora, motivo)
+                .enqueue(object : Callback<Respuesta> {
+                    override fun onResponse(call: Call<Respuesta>, response: Response<Respuesta>) {
+                        if (response.body()?.success == true) {
+                            Toast.makeText(this@AgendarCitaActivity, "Cita agendada", Toast.LENGTH_SHORT).show()
+                            etFecha.setText("")
+                            etHora.setText("")
+                            etMotivo.setText("")
+                        } else {
+                            Toast.makeText(this@AgendarCitaActivity, "Error al agendar", Toast.LENGTH_SHORT).show()
+                        }
                     }
 
-                    override fun onNothingSelected(parent: AdapterView<*>) {}
+                    override fun onFailure(call: Call<Respuesta>, t: Throwable) {
+                        Toast.makeText(this@AgendarCitaActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        }
+
+        btnVolver.setOnClickListener {
+            finish() // volver atrás
+        }
+    }
+
+    private fun habilitarFormulario() {
+        btnAgendar.isEnabled = true
+        spinnerMedicos.isEnabled = true
+        etFecha.isEnabled = true
+        etHora.isEnabled = true
+        etMotivo.isEnabled = true
+    }
+
+    private fun desactivarFormulario() {
+        btnAgendar.isEnabled = false
+        spinnerMedicos.isEnabled = false
+        etFecha.isEnabled = false
+        etHora.isEnabled = false
+        etMotivo.isEnabled = false
+    }
+
+    private fun cargarMedicos() {
+        val api = ApiClient.retrofit.create(ApiService::class.java)
+        api.listarMedicos().enqueue(object : Callback<List<Medico>> {
+            override fun onResponse(call: Call<List<Medico>>, response: Response<List<Medico>>) {
+                if (response.isSuccessful) {
+                    listaMedicos = response.body() ?: listOf()
+                    val nombres = listaMedicos.map { it.nombre }
+                    val adapter = ArrayAdapter(this@AgendarCitaActivity, android.R.layout.simple_spinner_item, nombres)
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    spinnerMedicos.adapter = adapter
                 }
             }
 
@@ -66,37 +141,5 @@ class AgendarCitaActivity : AppCompatActivity() {
                 Toast.makeText(this@AgendarCitaActivity, "Error al cargar médicos", Toast.LENGTH_SHORT).show()
             }
         })
-
-        // Selector de fecha
-        btnFecha.setOnClickListener {
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-
-            val datePicker = DatePickerDialog(this, { _, y, m, d ->
-                fechaSeleccionada = "$y-${m + 1}-$d"
-                fechaTexto.text = "Fecha: $fechaSeleccionada"
-            }, year, month, day)
-            datePicker.show()
-        }
-
-        btnAgendar.setOnClickListener {
-            if (medicoSeleccionadoId == null || fechaSeleccionada.isEmpty()) {
-                Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            api.insertarCita(pacienteId, medicoSeleccionadoId!!, fechaSeleccionada).enqueue(object : Callback<Respuesta> {
-                override fun onResponse(call: Call<Respuesta>, response: Response<Respuesta>) {
-                    val r = response.body()
-                    Toast.makeText(this@AgendarCitaActivity, r?.mensaje ?: "Sin respuesta", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onFailure(call: Call<Respuesta>, t: Throwable) {
-                    Toast.makeText(this@AgendarCitaActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
-        }
     }
 }
