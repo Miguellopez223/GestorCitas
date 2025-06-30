@@ -4,12 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/etMedicoId"
-        android:hint="ID del médico"
-        android:inputType="number"
+    <Spinner
+        android:id="@+id/spinnerMedicos"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:paddingVertical="12dp"
+        android:layout_marginBottom="12dp" />
 
     <Button
         android:id="@+id/btnBuscar"
