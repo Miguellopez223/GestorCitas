@@ -16,6 +16,10 @@ class MainActivity : AppCompatActivity() {
         val btnAgendar = findViewById<Button>(R.id.btnAgendar)
         val btnVerCitas = findViewById<Button>(R.id.btnVerCitas)
         val btnSalir = findViewById<Button>(R.id.btnSalir)
+        val btnMenuMedico = findViewById<Button>(R.id.btnMenuMedico)
+        btnMenuMedico.setOnClickListener {
+            startActivity(Intent(this, MenuMedicoActivity::class.java))
+        }
 
         btnRegistro.setOnClickListener {
             startActivity(Intent(this, InsertarPacienteActivity::class.java))

@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -17,21 +16,33 @@
         android:theme="@style/Theme.GestorCitas"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
-        <!-- Pantallas del paciente -->
-        <activity android:name=".view.InsertarPacienteActivity" android:exported="false" />
-        <activity android:name=".view.ListarMedicosActivity" android:exported="false" />
-        <activity android:name=".view.AgendarCitaActivity" android:exported="false" />
-        <activity android:name=".view.VerCitasActivity" android:exported="false" />
-
-        <!-- Actividad principal (menú paciente) -->
-        <activity android:name=".view.MainActivity" android:exported="true">
+        <activity
+            android:name=".view.InsertarMedicoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.MenuMedicoActivity"
+            android:exported="false" /> <!-- Pantallas del paciente -->
+        <activity
+            android:name=".view.InsertarPacienteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ListarMedicosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.AgendarCitaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.VerCitasActivity"
+            android:exported="false" /> <!-- Actividad principal (menú paciente) -->
+        <activity
+            android:name=".view.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

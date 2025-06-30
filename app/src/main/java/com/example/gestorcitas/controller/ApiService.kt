@@ -47,5 +47,11 @@ interface ApiService {
     @POST("buscar_paciente.php")
     fun buscarPaciente(@Field("ci") ci: String): Call<RespuestaBuscarPaciente>
 
+    @FormUrlEncoded
+    @POST("insertar_medico.php")
+    fun insertarMedico(
+        @Field("nombre") nombre: String,
+        @Field("especialidad") especialidad: String
+    ): Call<Respuesta>
 
 }
