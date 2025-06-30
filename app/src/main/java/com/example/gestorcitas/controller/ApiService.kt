@@ -1,6 +1,7 @@
 package com.example.gestorcitas.controller
 
 import com.example.gestorcitas.model.Cita
+import com.example.gestorcitas.model.CitaMedico
 import com.example.gestorcitas.model.Medico
 import com.example.gestorcitas.model.Respuesta
 import com.example.gestorcitas.model.RespuestaBuscarPaciente
@@ -30,7 +31,6 @@ interface ApiService {
         @Field("motivo") motivo: String
     ): Call<Respuesta>
 
-
     @FormUrlEncoded
     @POST("listar_citas_paciente.php")
     fun listarCitasPaciente(
@@ -54,4 +54,9 @@ interface ApiService {
         @Field("especialidad") especialidad: String
     ): Call<Respuesta>
 
+    @FormUrlEncoded
+    @POST("listar_citas_medico.php")
+    fun listarCitasMedico(
+        @Field("medico_id") medicoId: Int
+    ): Call<List<CitaMedico>>
 }

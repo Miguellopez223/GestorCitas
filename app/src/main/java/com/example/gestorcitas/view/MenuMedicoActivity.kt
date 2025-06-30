@@ -21,8 +21,7 @@ class MenuMedicoActivity : AppCompatActivity() {
         }
 
         btnVerCitas.setOnClickListener {
-            // Aquí después crearemos VerCitasMedicoActivity
-            // Por ahora no hace nada
+            startActivity(Intent(this, VerCitasMedicoActivity::class.java))
         }
 
         btnServicios.setOnClickListener {
