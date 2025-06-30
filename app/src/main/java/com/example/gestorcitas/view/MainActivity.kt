@@ -11,34 +11,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btnRegistro = findViewById<Button>(R.id.btnRegistro)
-        val btnMedicos = findViewById<Button>(R.id.btnMedicos)
-        val btnAgendar = findViewById<Button>(R.id.btnAgendar)
-        val btnVerCitas = findViewById<Button>(R.id.btnVerCitas)
-        val btnSalir = findViewById<Button>(R.id.btnSalir)
-        val btnMenuMedico = findViewById<Button>(R.id.btnMenuMedico)
-        btnMenuMedico.setOnClickListener {
+        val btnPaciente = findViewById<Button>(R.id.btnPaciente)
+        val btnMedico = findViewById<Button>(R.id.btnMedico)
+
+        btnPaciente.setOnClickListener {
+            startActivity(Intent(this, MenuPacienteActivity::class.java))
+        }
+
+        btnMedico.setOnClickListener {
             startActivity(Intent(this, MenuMedicoActivity::class.java))
-        }
-
-        btnRegistro.setOnClickListener {
-            startActivity(Intent(this, InsertarPacienteActivity::class.java))
-        }
-
-        btnMedicos.setOnClickListener {
-            startActivity(Intent(this, ListarMedicosActivity::class.java))
-        }
-
-        btnAgendar.setOnClickListener {
-            startActivity(Intent(this, AgendarCitaActivity::class.java))
-        }
-
-        btnVerCitas.setOnClickListener {
-            startActivity(Intent(this, VerCitasActivity::class.java))
-        }
-
-        btnSalir.setOnClickListener {
-            finish()
         }
     }
 }

@@ -38,7 +38,7 @@
 
     <Button
         android:id="@+id/btnVolver"
-        android:text="Volver al Menú"
+        android:text="Volver al Menú del Paciente"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
